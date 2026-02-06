@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            /* Improved background properties */
+            background-image: url('/images/financials.jpg');
+            background-size: cover; /* Ensures image covers entire viewport */
+            background-position: center center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents tiling */
+            background-attachment: fixed; /* Creates parallax effect */
+            background-color: #667eea; /* Fallback color if image fails to load */
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+            /* Add a dark overlay for better text readability */
+            position: relative;
+        }
+        
+        /* Optional: Add overlay for better text contrast */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+            z-index: -1; /* Behind content */
+        }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            color: #333;
+            position: relative; /* Ensures it's above the overlay */
+            z-index: 1;
+            /* Ensure container doesn't get too tall on small screens */
+            max-height: calc(100vh - 40px); /* Account for body padding */
+            overflow-y: auto; /* Add scroll if content overflows */
+        }
+        
+        /* Responsive container */
+        @media (max-width: 1240px) {
+            .container {
+                margin: 0 20px;
+                max-width: calc(100% - 40px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 0 15px;
+                border-radius: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 0 10px;
+                border-radius: 12px;
+            }
+        }
+        
+        h1 { 
+            color: #2c3e50; 
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Responsive heading */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+        }
+        
+        .status-card {
+            background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            /* Ensure proper text contrast */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px dashed #667eea;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        /* Add hover effect for upload section */
+        .upload-section:hover {
+            border-color: #764ba2;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            transform: translateY(-5px);
+        }
+        
+        input[type="file"] {
+            padding: 15px;
+            margin: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            width: 80%;
+            font-size: 16px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            max-width: 500px; /* Prevent from getting too wide */
+        }
+        
+        input[type="file"]:hover {
+            border-color: #764ba2;
+        }
+        
+        input[type="file"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-width: 200px; /* Consistent button width */
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .info {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        code {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            color: #d63384;
+            font-size: 0.95em;
+            display: inline-block;
+            margin: 2px 0;
+        }
+        
+        /* Scrollbar styling for container */
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        .container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #667eea;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Chart containers */
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            input[type="file"] {
+                width: 90%;
+                margin: 10px 0;
+                padding: 12px;
+            }
+            
+            button {
+                padding: 12px 25px;
+                font-size: 16px;
+                min-width: 180px;
+            }
+            
+            .upload-section,
+            .status-card,
+            .info {
+                padding: 20px;
+                margin: 15px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 15px;
+                min-width: 160px;
+                margin: 5px;
+            }
+            
+            input[type="file"] {
+                width: 95%;
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Ensure proper text visibility on all backgrounds */
+        .text-light-bg {
+            color: #333;
+        }
+        
+        .text-dark-bg {
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-20 {
+            margin-top: 20px;
+        }
+        
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+        
+        .p-20 {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Analytics Dashboard</h1>
+        <div class="upload-section">
+            <input type="file" id="csvFile" accept=".csv">
+            <button id="uploadBtn">Upload & Analyze</button>
+            <div id="message"></div>
+        </div>
+        <div id="charts">
+            <h3>Charts</h3>
+            <canvas id="quantityChart"></canvas>
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
