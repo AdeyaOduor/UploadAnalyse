@@ -14,10 +14,18 @@
         
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Improved background properties */
+            background-image: url('images/financials.jpg');
+            background-size: cover; /* Ensures image covers entire viewport */
+            background-position: center center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents tiling */
+            background-attachment: fixed; /* Creates parallax effect */
+            background-color: #667eea; /* Fallback color if image fails to load */
             min-height: 100vh;
             padding: 20px;
             color: white;
+            /* Add a dark overlay for better text readability */
+            position: relative;
         }
         
         .container { 
